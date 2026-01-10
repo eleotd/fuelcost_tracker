@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h3 class="mb-0">
+                    <i class="fas fa-exclamation-triangle"></i> Подтверждение удаления
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <i class="fas fa-trash-alt fa-4x text-danger mb-3"></i>
+                    <h4>Вы уверены, что хотите удалить эту заправку?</h4>
+                </div>
+                
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5>Информация о заправке:</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Автомобиль:</strong> {{ refuel.car }}</p>
+                                <p><strong>Дата:</strong> {{ refuel.date|date:"d.m.Y" }}</p>
+                                <p><strong>Пробег:</strong> {{ refuel.odometer }} км</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Объем:</strong> {{ refuel.volume }} л</p>
+                                <p><strong>Цена за литр:</strong> {{ refuel.price_per_liter }} руб</p>
+                                <p><strong>Общая стоимость:</strong> 
+                                    <span class="fw-bold text-danger">{{ refuel.total_cost }} руб</span>
+                                </p>
+                            </div>
+                        </div>
+                        {% if refuel.station_name %}
+                        <p><strong>АЗС:</strong> {{ refuel.station_name }}</p>
+                        {% endif %}
+                        {% if refuel.notes %}
+                        <p><strong>Примечание:</strong> {{ refuel.notes }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <strong>Внимание!</strong> Это действие нельзя отменить. 
+                    Все данные этой заправки будут удалены без возможности восстановления.
+                </div>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <button type="submit" class="btn btn-danger me-md-2 btn-delete">
+                            <i class="fas fa-trash-alt"></i> Да, удалить
+                        </button>
+                        <a href="{% url 'refuel-list' %}" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Отмена
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">
+                    <i class="fas fa-info-circle"></i> Что будет удалено
+                </h5>
+            </div>
+            <div class="card-body">
+                <ul class="mb-0">
+                    <li>Запись о заправке из базы данных</li>
+                    <li>Данные о стоимости и объеме топлива</li>
+                    <li>Эта заправка перестанет учитываться в статистике</li>
+                    <li>Могут измениться расчеты среднего расхода топлива</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const deleteButton = document.querySelector('.btn-delete');
+        if (deleteButton) {
+            deleteButton.addEventListener('click', function(e) {
+                // Дополнительное подтверждение
+                if (!confirm('Вы уверены на 100%? Это действие необратимо!')) {
+                    e.preventDefault();
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

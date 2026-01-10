@@ -173,6 +173,12 @@ def statistics(request):
             'spent': float(monthly_spent),
             'count': month_refuels.count(),
         })
+
+    # Рассчитываем проценты для прогресс-баров
+    if monthly_data:
+        max_spent = max(item['spent'] for item in monthly_data) or 1  # Чтобы избежать деления на 0
+        for item in monthly_data:
+            item['percent'] = int((item['spent'] / max_spent) * 100)    
     
     # Статистика по автомобилям
     car_stats = []

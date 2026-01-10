@@ -21,6 +21,53 @@
 ## Установка и запуск
 
 ### 1. Клонирование репозитория
-```bash
-git clone https://github.com/ваш ютр/fuelcost_tracker.git
+\`\`\`bash
+git clone https://github.com//fuelcost_tracker.git
 cd fuelcost_tracker
+\`\`\`
+
+### 2. Создание виртуального окружения
+\`\`\`bash
+python -m venv venv
+
+# Windows
+venv\\Scripts\\activate
+
+# Linux/Mac
+source venv/bin/activate
+\`\`\`
+
+### 3. Установка зависимостей
+\`\`\`bash
+pip install -r requirements.txt
+\`\`\`
+
+### 4. Настройка базы данных
+\`\`\`bash
+python manage.py migrate
+python manage.py createsuperuser
+\`\`\`
+
+### 5. Запуск сервера
+\`\`\`bash
+python manage.py runserver
+\`\`\`
+
+### 6. Открытие в браузере
+Перейдите по адресу: http://127.0.0.1:8000/
+
+## Структура проекта
+\`\`\`
+fuelcost_tracker/
+├── tracker/          # Основное приложение
+├── users/           # Приложение пользователей
+├── templates/       # HTML шаблоны
+├── manage.py        # Django CLI
+└── requirements.txt # Зависимости
+\`\`\`
+
+## Скриншоты
+(Скриншоты главной страницы, дашборда, статистики)
+
+## Ссылка на рабочий проект
+https://логин.pythonanywhere.com"

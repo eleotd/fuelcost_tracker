@@ -1,0 +1,375 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>
+        <i class="fas fa-chart-bar"></i> Статистика и аналитика
+    </h1>
+    <a href="{% url 'dashboard' %}" class="btn btn-outline-primary">
+        <i class="fas fa-tachometer-alt"></i> Панель управления
+    </a>
+</div>
+
+<!-- Основная статистика -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h2 class="text-success">
+                    {{ total_stats.spent|floatformat:0|intcomma }}
+                </h2>
+                <p class="text-muted mb-0">Всего потрачено, руб</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h2 class="text-primary">
+                    {{ total_stats.volume|floatformat:1 }}
+                </h2>
+                <p class="text-muted mb-0">Всего литров</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h2 class="text-warning">
+                    {{ total_stats.avg_price|floatformat:2 }}
+                </h2>
+                <p class="text-muted mb-0">Средняя цена/л</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h2 class="text-info">
+                    {{ total_stats.count }}
+                </h2>
+                <p class="text-muted mb-0">Всего заправок</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- График расходов по месяцам -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="fas fa-chart-line"></i> Расходы по месяцам
+        </h5>
+    </div>
+    <div class="card-body">
+        {% if monthly_data %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Месяц</th>
+                        <th>Потрачено, руб</th>
+                        <th>Количество заправок</th>
+                        <th>Прогресс</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for month in monthly_data %}
+                    <tr>
+                        <td>{{ month.month }}</td>
+                        <td class="fw-bold">{{ month.spent|floatformat:2 }} руб</td>
+                        <td>{{ month.count }}</td>
+                        <td>
+                            <div class="progress" style="height: 20px;">
+                                <div class="progress-bar bg-success" 
+                                    role="progressbar" 
+                                    data-percent="{{ month.percent|default:0 }}"
+                                    aria-valuenow="{{ month.spent }}" 
+                                    aria-valuemin="0" 
+                                    aria-valuemax="100">
+                                    {{ month.percent|default:0 }}%
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-4">
+            <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+            <p class="text-muted">Недостаточно данных для построения графика</p>
+            <p>Добавьте больше заправок для получения статистики</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Статистика по автомобилям -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="fas fa-car"></i> Статистика по автомобилям
+        </h5>
+    </div>
+    <div class="card-body">
+        {% if car_stats %}
+        <div class="row">
+            {% for stat in car_stats %}
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h6 class="mb-0">{{ stat.car.brand }} {{ stat.car.model }}</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="mb-2">
+                                    <strong>Топливо:</strong>
+                                    <span class="badge bg-{% if stat.car.fuel_type == 'AI-92' %}secondary{% elif stat.car.fuel_type == 'AI-95' %}warning{% elif stat.car.fuel_type == 'AI-98' %}danger{% else %}dark{% endif %}">
+                                        {{ stat.car.get_fuel_type_display }}
+                                    </span>
+                                </p>
+                                <p class="mb-2">
+                                    <strong>Заправок:</strong> 
+                                    <span class="badge bg-info">{{ stat.refuel_count }}</span>
+                                </p>
+                                <p class="mb-2">
+                                    <strong>Расход:</strong> 
+                                    <span class="badge bg-{% if stat.avg_consumption < 8 %}success{% elif stat.avg_consumption < 12 %}warning{% else %}danger{% endif %}">
+                                        {{ stat.avg_consumption }} л/100км
+                                    </span>
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="mb-2">
+                                    <strong>Потрачено:</strong>
+                                    <br>
+                                    <span class="text-danger fw-bold">
+                                        {{ stat.total_spent|floatformat:2 }} руб
+                                    </span>
+                                </p>
+                                <p class="mb-0">
+                                    <strong>Топлива:</strong>
+                                    <br>
+                                    <span class="text-primary fw-bold">
+                                        {{ stat.total_volume|floatformat:1 }} л
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Сравнительная таблица -->
+        <div class="mt-4">
+            <h6 class="mb-3">Сравнение автомобилей:</h6>
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Автомобиль</th>
+                            <th>Средние затраты в месяц</th>
+                            <th>Стоимость 1 км</th>
+                            <th>Экономичность</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for stat in car_stats %}
+                        <tr>
+                            <td>{{ stat.car.brand }} {{ stat.car.model }}</td>
+                            <td>
+                                {% with monthly=stat.total_spent|divisibleby:6 %}
+                                    {{ monthly|floatformat:2 }} руб
+                                {% endwith %}
+                            </td>
+                            <td>
+                                {% with cost_per_km=stat.total_spent|divisibleby:stat.refuel_count|default:1 %}
+                                    {{ cost_per_km|floatformat:2 }} руб/км
+                                {% endwith %}
+                            </td>
+                            <td>
+                                {% if stat.avg_consumption < 8 %}
+                                    <span class="badge bg-success">Очень экономичный</span>
+                                {% elif stat.avg_consumption < 12 %}
+                                    <span class="badge bg-warning">Средний расход</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Высокий расход</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        {% else %}
+        <div class="text-center py-4">
+            <i class="fas fa-car fa-3x text-muted mb-3"></i>
+            <p class="text-muted">Нет данных по автомобилям</p>
+            <p>Добавьте автомобили и заправки для получения статистики</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Текущие цены на топливо -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="fas fa-gas-pump"></i> Текущие цены на топливо
+        </h5>
+    </div>
+    <div class="card-body">
+        {% if fuel_prices %}
+        <div class="row">
+            {% for price in fuel_prices %}
+            <div class="col-md-3 mb-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">
+                            {% if price.type == 'AI-92' %}
+                                <span class="badge bg-secondary">АИ-92</span>
+                            {% elif price.type == 'AI-95' %}
+                                <span class="badge bg-warning">АИ-95</span>
+                            {% elif price.type == 'AI-98' %}
+                                <span class="badge bg-danger">АИ-98</span>
+                            {% elif price.type == 'DIESEL' %}
+                                <span class="badge bg-dark">Дизель</span>
+                            {% else %}
+                                <span class="badge bg-info">{{ price.type }}</span>
+                            {% endif %}
+                        </h5>
+                        <h3 class="text-primary my-3">{{ price.price }} руб/л</h3>
+                        <p class="text-muted small mb-0">
+                            <i class="fas fa-info-circle"></i>
+                            Средняя цена по региону
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="mt-4">
+            <div class="alert alert-info">
+                <i class="fas fa-lightbulb"></i>
+                <strong>Совет:</strong> Сравнивайте цены на разных АЗС. 
+                Разница может достигать 2-3 рубля за литр!
+            </div>
+        </div>
+        
+        {% else %}
+        <div class="text-center py-4">
+            <i class="fas fa-gas-pump fa-3x text-muted mb-3"></i>
+            <p class="text-muted">Информация о ценах временно недоступна</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Рекомендации -->
+<div class="card mt-4">
+    <div class="card-header bg-success text-white">
+        <h5 class="mb-0">
+            <i class="fas fa-bullseye"></i> Рекомендации по оптимизации расходов
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="d-flex mb-3">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-calculator text-success fa-2x"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6>Планируйте поездки</h6>
+                        <p class="small text-muted mb-0">Объединяйте несколько дел в одну поездку</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="d-flex mb-3">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-route text-primary fa-2x"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6>Оптимальный маршрут</h6>
+                        <p class="small text-muted mb-0">Используйте навигатор для выбора кратчайшего пути</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="d-flex mb-3">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-money-bill-wave text-warning fa-2x"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6>Следите за акциями</h6>
+                        <p class="small text-muted mb-0">Многие АЗС проводят акции и дают скидки</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-3">
+            <h6>Ваша потенциальная экономия:</h6>
+            <div class="progress" style="height: 30px;">
+                <div class="progress-bar bg-success" role="progressbar" style="width: 15%">
+                    15% - Оптимизация маршрутов
+                </div>
+                <div class="progress-bar bg-info" role="progressbar" style="width: 10%">
+                    10% - Стиль вождения
+                </div>
+                <div class="progress-bar bg-warning" role="progressbar" style="width: 8%">
+                    8% - Выбор АЗС
+                </div>
+                <div class="progress-bar bg-primary" role="progressbar" style="width: 5%">
+                    5% - Техобслуживание
+                </div>
+            </div>
+            <p class="mt-2 small text-muted">
+                Итого: до <strong>38% экономии</strong> на топливе при выполнении всех рекомендаций
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Простая анимация прогресс-баров
+        const progressBars = document.querySelectorAll('.progress-bar');
+        progressBars.forEach(bar => {
+            const width = bar.style.width;
+            bar.style.width = '0%';
+            setTimeout(() => {
+                bar.style.width = width;
+                bar.style.transition = 'width 1.5s ease-in-out';
+            }, 100);
+        });
+    });
+</script>
+{% endblock %}
+
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Устанавливаем ширину прогресс-баров
+    document.querySelectorAll('.progress-bar[data-percent]').forEach(function(bar) {
+        const percent = bar.getAttribute('data-percent');
+        bar.style.width = percent + '%';
+    });
+});
+</script>
+{% endblock %}

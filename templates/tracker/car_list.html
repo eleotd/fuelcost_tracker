@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>
+        <i class="fas fa-car"></i> Мои автомобили
+    </h1>
+    <a href="{% url 'car-add' %}" class="btn btn-success">
+        <i class="fas fa-plus"></i> Добавить автомобиль
+    </a>
+</div>
+
+{% if cars %}
+<div class="row">
+    {% for car in cars %}
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">{{ car.brand }} {{ car.model }}</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <p class="mb-1"><strong>Год выпуска:</strong> {{ car.year }}</p>
+                    <p class="mb-1">
+                        <strong>Топливо:</strong> 
+                        <span class="badge bg-{% if car.fuel_type == 'AI-92' %}secondary{% elif car.fuel_type == 'AI-95' %}warning{% elif car.fuel_type == 'AI-98' %}danger{% else %}dark{% endif %}">
+                            {{ car.get_fuel_type_display }}
+                        </span>
+                    </p>
+                    <p class="mb-1"><strong>Объем двигателя:</strong> {{ car.engine_volume }} л</p>
+                    <p class="mb-1"><strong>Средний расход:</strong> {{ car.average_consumption }} л/100км</p>
+                </div>
+                
+                <div class="mt-3">
+                    <p class="mb-1"><strong>Статистика по авто:</strong></p>
+                    <ul class="list-unstyled small">
+                        <li>
+                            <i class="fas fa-gas-pump text-warning"></i>
+                            Всего заправок: {{ car.refuels.count }}
+                        </li>
+                        <li>
+                            <i class="fas fa-ruble-sign text-success"></i>
+                            Потрачено: {{ car.get_total_fuel_cost|default:0|floatformat:2 }} руб
+                        </li>
+                        <li>
+                            <i class="fas fa-oil-can text-primary"></i>
+                            Топлива: {{ car.get_total_fuel_volume|default:0|floatformat:1 }} л
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="d-flex justify-content-between">
+                    <small class="text-muted">
+                        Добавлен: {{ car.created_at|date:"d.m.Y" }}
+                    </small>
+                    <a href="{% url 'refuel-list' %}?car={{ car.id }}" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-history"></i> Заправки
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="card mt-4">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="fas fa-chart-pie"></i> Сводная статистика
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="row text-center">
+            <div class="col-md-3">
+                <h3 class="text-primary">{{ cars.count }}</h3>
+                <p class="text-muted mb-0">Автомобилей</p>
+            </div>
+            <div class="col-md-3">
+                <h3 class="text-success">
+                    {{ total_spent|default:0|floatformat:0|intcomma }}
+                </h3>
+                <p class="text-muted mb-0">Всего потрачено, руб</p>
+            </div>
+            <div class="col-md-3">
+                <h3 class="text-warning">
+                    {% with total_refuels=cars|length %}
+                        {% if total_refuels > 0 %}
+                            {{ total_spent|default:0|floatformat:0|intcomma|add:"0"|divisibleby:total_refuels }}
+                        {% else %}
+                            0
+                        {% endif %}
+                    {% endwith %}
+                </h3>
+                <p class="text-muted mb-0">Среднее на авто, руб</p>
+            </div>
+            <div class="col-md-3">
+                <h3 class="text-info">
+                    {% with total=cars|length %}
+                        {% if total > 0 %}
+                            {% widthratio total_refuels|default:0 total 1 %}
+                        {% else %}
+                            0
+                        {% endif %}
+                    {% endwith %}
+                </h3>
+                <p class="text-muted mb-0">Заправок в среднем</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% else %}
+<div class="card text-center py-5">
+    <div class="card-body">
+        <i class="fas fa-car fa-4x text-muted mb-4"></i>
+        <h3>У вас пока нет автомобилей</h3>
+        <p class="text-muted mb-4">Добавьте свой первый автомобиль, чтобы начать учет расходов на топливо</p>
+        <a href="{% url 'car-add' %}" class="btn btn-success btn-lg">
+            <i class="fas fa-plus"></i> Добавить первый автомобиль
+        </a>
+    </div>
+</div>
+{% endif %}
+
+<div class="card mt-4">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">
+            <i class="fas fa-lightbulb"></i> Советы по экономии топлива
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="d-flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-tachometer-alt text-primary fa-2x"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6>Плавное вождение</h6>
+                        <p class="small text-muted mb-0">Избегайте резких ускорений и торможений</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="d-flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-tire text-success fa-2x"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6>Давление в шинах</h6>
+                        <p class="small text-muted mb-0">Поддерживайте правильное давление</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="d-flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-weight text-warning fa-2x"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6>Уменьшите вес</h6>
+                        <p class="small text-muted mb-0">Не возите лишние вещи в багажнике</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

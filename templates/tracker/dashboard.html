@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Панель управления{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <h1 class="mb-4">
+            <i class="fas fa-tachometer-alt text-primary"></i> Панель управления
+        </h1>
+        
+        <!-- Статистика -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h3 class="text-success">{{ total_spent|floatformat:0|intcomma }}</h3>
+                        <p class="text-muted">Всего потрачено, руб</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h3 class="text-primary">{{ total_volume|floatformat:1 }}</h3>
+                        <p class="text-muted">Всего литров</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h3 class="text-warning">{{ avg_price|floatformat:2 }}</h3>
+                        <p class="text-muted">Средняя цена, руб/л</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h3 class="text-info">{{ car_count }}</h3>
+                        <p class="text-muted">Автомобилей</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Последние заправки -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-history"></i> Последние заправки
+                    <a href="{% url 'refuel-add' %}" class="btn btn-success btn-sm float-end">
+                        <i class="fas fa-plus"></i> Добавить
+                    </a>
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if recent_refuels %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Дата</th>
+                                <th>Автомобиль</th>
+                                <th>Объем</th>
+                                <th>Цена/л</th>
+                                <th>Стоимость</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for refuel in recent_refuels %}
+                            <tr>
+                                <td>{{ refuel.date|date:"d.m.Y" }}</td>
+                                <td>{{ refuel.car }}</td>
+                                <td>{{ refuel.volume }} л</td>
+                                <td>{{ refuel.price_per_liter }} руб</td>
+                                <td class="fw-bold">{{ refuel.total_cost }} руб</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <a href="{% url 'refuel-list' %}" class="btn btn-outline-primary btn-sm">Все заправки</a>
+                {% else %}
+                <p class="text-muted">У вас пока нет заправок. <a href="{% url 'refuel-add' %}">Добавьте первую!</a></p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Боковая панель -->
+    <div class="col-md-4">
+        <!-- Мои автомобили -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-car"></i> Мои автомобили
+                    <a href="{% url 'car-add' %}" class="btn btn-success btn-sm float-end">
+                        <i class="fas fa-plus"></i> Добавить
+                    </a>
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if cars %}
+                <div class="list-group">
+                    {% for car in cars %}
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">{{ car.brand }} {{ car.model }}</h6>
+                            <small class="text-muted">{{ car.year }} г.</small>
+                        </div>
+                        <p class="mb-1">
+                            <span class="badge bg-{% if car.fuel_type == 'AI-92' %}secondary{% elif car.fuel_type == 'AI-95' %}warning{% elif car.fuel_type == 'AI-98' %}danger{% else %}dark{% endif %}">
+                                {{ car.get_fuel_type_display }}
+                            </span>
+                            <span class="badge bg-info">{{ car.engine_volume }} л</span>
+                        </p>
+                    </a>
+                    {% endfor %}
+                </div>
+                <a href="{% url 'car-list' %}" class="btn btn-outline-primary btn-sm mt-3">Все автомобили</a>
+                {% else %}
+                <p class="text-muted">У вас нет автомобилей. <a href="{% url 'car-add' %}">Добавьте первый!</a></p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Быстрые действия -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-bolt"></i> Быстрые действия</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'refuel-add' %}" class="btn btn-success">
+                        <i class="fas fa-gas-pump"></i> Добавить заправку
+                    </a>
+                    <a href="{% url 'car-add' %}" class="btn btn-primary">
+                        <i class="fas fa-car"></i> Добавить автомобиль
+                    </a>
+                    <a href="{% url 'statistics' %}" class="btn btn-info">
+                        <i class="fas fa-chart-bar"></i> Посмотреть статистику
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block title %}Главная{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto text-center">
+        <div class="card">
+            <div class="card-body">
+                <h1 class="display-4 mb-4">
+                    <i class="fas fa-gas-pump text-success"></i> FuelCost Tracker
+                </h1>
+                <p class="lead">Учет и анализ расходов на топливо для автомобилистов</p>
+                
+                <div class="row mt-5">
+                    <div class="col-md-4 mb-4">
+                        <div class="card stat-card">
+                            <div class="card-body">
+                                <i class="fas fa-chart-line fa-2x text-primary mb-3"></i>
+                                <h5>Анализ расходов</h5>
+                                <p class="text-muted">Отслеживайте динамику цен на топливо</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4 mb-4">
+                        <div class="card stat-card">
+                            <div class="card-body">
+                                <i class="fas fa-car fa-2x text-success mb-3"></i>
+                                <h5>Учет по авто</h5>
+                                <p class="text-muted">Ведите историю заправок для каждого автомобиля</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4 mb-4">
+                        <div class="card stat-card">
+                            <div class="card-body">
+                                <i class="fas fa-calculator fa-2x text-warning mb-3"></i>
+                                <h5>Расчет экономии</h5>
+                                <p class="text-muted">Оптимизируйте затраты на топливо</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                {% if not user.is_authenticated %}
+                <div class="mt-5">
+                    <h4 class="mb-4">Начните прямо сейчас!</h4>
+                    <a href="{% url 'register' %}" class="btn btn-success btn-lg me-3">
+                        <i class="fas fa-user-plus"></i> Зарегистрироваться
+                    </a>
+                    <a href="{% url 'login' %}" class="btn btn-outline-primary btn-lg">
+                        <i class="fas fa-sign-in-alt"></i> Войти
+                    </a>
+                </div>
+                {% else %}
+                <div class="mt-5">
+                    <h4 class="mb-4">Добро пожаловать, {{ user.username }}!</h4>
+                    <a href="{% url 'dashboard' %}" class="btn btn-primary btn-lg me-3">
+                        <i class="fas fa-tachometer-alt"></i> Перейти в панель
+                    </a>
+                    <a href="{% url 'refuel-add' %}" class="btn btn-success btn-lg">
+                        <i class="fas fa-plus"></i> Добавить заправку
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-body">
+                <h3>Как это работает?</h3>
+                <div class="row mt-4">
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                <i class="fas fa-car"></i>
+                            </div>
+                            <h5 class="mt-3">1. Добавьте авто</h5>
+                            <p>Укажите параметры вашего автомобиля</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                <i class="fas fa-gas-pump"></i>
+                            </div>
+                            <h5 class="mt-3">2. Вносите заправки</h5>
+                            <p>Фиксируйте каждую заправку</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <div class="bg-warning text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                <i class="fas fa-chart-bar"></i>
+                            </div>
+                            <h5 class="mt-3">3. Анализируйте</h5>
+                            <p>Изучайте статистику и графики</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <div class="bg-info text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                <i class="fas fa-piggy-bank"></i>
+                            </div>
+                            <h5 class="mt-3">4. Экономьте</h5>
+                            <p>Снижайте расходы на топливо</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

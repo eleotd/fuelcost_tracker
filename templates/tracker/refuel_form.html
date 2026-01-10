@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="mb-0">
+                    <i class="fas fa-gas-pump"></i> {{ title }}
+                </h3>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.car.label_tag }}
+                                {{ form.car }}
+                                {% if form.car.errors %}
+                                    <div class="text-danger">{{ form.car.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                {{ form.date.label_tag }}
+                                {{ form.date }}
+                                {% if form.date.errors %}
+                                    <div class="text-danger">{{ form.date.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                {{ form.odometer.label_tag }}
+                                {{ form.odometer }}
+                                {% if form.odometer.errors %}
+                                    <div class="text-danger">{{ form.odometer.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                {{ form.volume.label_tag }}
+                                {{ form.volume }}
+                                {% if form.volume.errors %}
+                                    <div class="text-danger">{{ form.volume.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.price_per_liter.label_tag }}
+                                {{ form.price_per_liter }}
+                                {% if form.price_per_liter.errors %}
+                                    <div class="text-danger">{{ form.price_per_liter.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                {{ form.station_name.label_tag }}
+                                {{ form.station_name }}
+                                {% if form.station_name.errors %}
+                                    <div class="text-danger">{{ form.station_name.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3 form-check">
+                                {{ form.full_tank }}
+                                {{ form.full_tank.label_tag }}
+                            </div>
+                            
+                            <div class="mb-3">
+                                {{ form.notes.label_tag }}
+                                {{ form.notes }}
+                                {% if form.notes.errors %}
+                                    <div class="text-danger">{{ form.notes.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-save"></i> Сохранить
+                        </button>
+                        <a href="{% url 'refuel-list' %}" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Отмена
+                        </a>
+                    </div>
+                </form>
+                
+                {% if refuel %}
+                <hr>
+                <div class="mt-3">
+                    <h5>Расчет расхода:</h5>
+                    {% with consumption=refuel.calculate_consumption %}
+                        {% if consumption %}
+                            <p class="text-success">
+                                <i class="fas fa-gas-pump"></i>
+                                Средний расход: <strong>{{ consumption }} л/100км</strong>
+                            </p>
+                        {% else %}
+                            <p class="text-muted">
+                                <i class="fas fa-info-circle"></i>
+                                Для расчета расхода нужны данные двух последовательных заправок с полным баком
+                            </p>
+                        {% endif %}
+                    {% endwith %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Автоматический расчет общей стоимости
+    document.addEventListener('DOMContentLoaded', function() {
+        const volumeInput = document.querySelector('#{{ form.volume.id_for_label }}');
+        const priceInput = document.querySelector('#{{ form.price_per_liter.id_for_label }}');
+        
+        function calculateTotal() {
+            const volume = parseFloat(volumeInput.value) || 0;
+            const price = parseFloat(priceInput.value) || 0;
+            const total = volume * price;
+            
+            // Показываем результат
+            let totalElement = document.getElementById('total-cost-display');
+            if (!totalElement) {
+                totalElement = document.createElement('div');
+                totalElement.id = 'total-cost-display';
+                totalElement.className = 'alert alert-info mt-2';
+                priceInput.parentNode.appendChild(totalElement);
+            }
+            
+            if (volume > 0 && price > 0) {
+                totalElement.innerHTML = `
+                    <i class="fas fa-calculator"></i>
+                    Общая стоимость: <strong>${total.toFixed(2)} руб</strong>
+                `;
+            } else {
+                totalElement.innerHTML = `
+                    <i class="fas fa-info-circle"></i>
+                    Введите объем и цену для расчета
+                `;
+            }
+        }
+        
+        volumeInput.addEventListener('input', calculateTotal);
+        priceInput.addEventListener('input', calculateTotal);
+        
+        // Первоначальный расчет
+        calculateTotal();
+    });
+</script>
+{% endblock %}

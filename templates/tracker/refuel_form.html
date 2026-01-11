@@ -129,7 +129,6 @@
             const price = parseFloat(priceInput.value) || 0;
             const total = volume * price;
             
-            // Показываем результат
             let totalElement = document.getElementById('total-cost-display');
             if (!totalElement) {
                 totalElement = document.createElement('div');
@@ -154,7 +153,6 @@
         volumeInput.addEventListener('input', calculateTotal);
         priceInput.addEventListener('input', calculateTotal);
         
-        // Первоначальный расчет
         calculateTotal();
     });
 </script>

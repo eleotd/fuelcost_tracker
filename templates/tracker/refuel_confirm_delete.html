@@ -88,7 +88,6 @@
         const deleteButton = document.querySelector('.btn-delete');
         if (deleteButton) {
             deleteButton.addEventListener('click', function(e) {
-                // Дополнительное подтверждение
                 if (!confirm('Вы уверены на 100%? Это действие необратимо!')) {
                     e.preventDefault();
                 }

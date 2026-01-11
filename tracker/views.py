@@ -147,7 +147,6 @@ def refuel_delete(request, pk):
 @login_required
 def statistics(request):
     """Страница статистики с графиками"""
-    # Базовые данные
     refuels = Refuel.objects.filter(user=request.user).select_related('car')
     cars = Car.objects.filter(user=request.user)
     
@@ -161,7 +160,7 @@ def statistics(request):
     
     # Статистика по месяцам (для графика)
     monthly_data = []
-    for i in range(5, -1, -1):  # Последние 6 месяцев
+    for i in range(5, -1, -1):
         month_start = datetime.now().replace(day=1) - timedelta(days=30*i)
         month_end = month_start.replace(day=28) + timedelta(days=4)
         
@@ -174,18 +173,15 @@ def statistics(request):
             'count': month_refuels.count(),
         })
 
-    MONTHLY_BUDGET = 5000  # Или брать из настроек пользователя
+    MONTHLY_BUDGET = 5000
     
-    # Рассчитываем проценты для прогресс-баров относительно БЮДЖЕТА
     for item in monthly_data:
         if MONTHLY_BUDGET > 0:
-            # Рассчитываем процент от бюджета, но не более 100%
             percent = min(100, int((item['spent'] / MONTHLY_BUDGET) * 100))
         else:
             percent = 0
         item['percent'] = percent
         
-        # Добавляем флаг завершения (для отображения ✅)
         item['is_complete'] = percent >= 100  
     
     # Статистика по автомобилям
@@ -221,7 +217,6 @@ def statistics(request):
             'avg_consumption': round(avg_consumption, 2),
         })
     
-    # Для демо используем фиктивные данные вместо API
     fuel_prices = [
         {'type': 'AI-92', 'price': 48.50},
         {'type': 'AI-95', 'price': 52.30},

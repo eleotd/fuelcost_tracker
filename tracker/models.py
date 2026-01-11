@@ -57,7 +57,6 @@ class Refuel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
-        # Теперь оба значения Decimal, можно безопасно умножать
         self.total_cost = self.volume * self.price_per_liter
         super().save(*args, **kwargs)
     
@@ -74,7 +73,6 @@ class Refuel(models.Model):
     
     def calculate_consumption(self):
         """Расчет расхода между заправками"""
-        # Находим предыдущую заправку для этой машины
         previous = Refuel.objects.filter(
             car=self.car,
             date__lt=self.date

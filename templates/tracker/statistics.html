@@ -367,7 +367,7 @@
 {% block extra_js %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Устанавливаем ширину прогресс-баров
+        // Ширина прогресс-баров
         document.querySelectorAll('.progress-bar[data-percent]').forEach(function(bar) {
             const percent = bar.getAttribute('data-percent');
             bar.style.width = percent + '%';

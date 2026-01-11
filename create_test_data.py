@@ -8,7 +8,6 @@ import django
 import random
 from datetime import datetime, timedelta
 
-# Настройка Django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'fuelcost_project.settings')
 django.setup()
 
@@ -116,7 +115,6 @@ def create_test_data():
     # 4. Создаем заправки для каждого автомобиля
     stations = ['Лукойл', 'Газпромнефть', 'Роснефть', 'Татнефть', 'Shell', 'BP', 'Газпром']
     
-    # Цены по типам топлива для реалистичности
     fuel_price_map = {
         'AI-92': [46.50, 47.00, 47.50, 48.00, 48.50],
         'AI-95': [50.30, 50.80, 51.30, 51.80, 52.30],
@@ -130,11 +128,9 @@ def create_test_data():
     for car in cars:
         print(f"\n📝 Создаю заправки для {car.brand} {car.model}:")
         
-        # Начальные значения
         odometer = random.randint(10000, 50000)
         start_date = datetime.now() - timedelta(days=180)  # 6 месяцев назад
         
-        # Создаем 6-8 заправок для каждого авто
         num_refuels = random.randint(6, 8)
         
         for i in range(num_refuels):
@@ -143,7 +139,6 @@ def create_test_data():
             price = random.choice(fuel_price_map[car.fuel_type])
             total_cost = round(volume * price, 2)
             
-            # Создаем заправку
             refuel = Refuel.objects.create(
                 user=user,
                 car=car,
@@ -164,7 +159,6 @@ def create_test_data():
                 ])
             )
             
-            # Обновляем значения для следующей заправки
             odometer += random.randint(400, 800)
             start_date += timedelta(days=random.randint(7, 14))
             total_refuels += 1

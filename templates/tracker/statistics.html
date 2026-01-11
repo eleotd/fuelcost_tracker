@@ -200,9 +200,9 @@
                     <tr>
                         <td>{{ stat.car.brand }} {{ stat.car.model }}</td>
                         <td>
-                            {% if stat.total_spent %}
-                                {% widthratio stat.total_spent 6 1 as monthly %}
-                                {{ monthly|floatformat:2 }} руб
+                            {% if stat.refuel_count > 0 and stat.total_spent %}
+                                {% widthratio stat.total_spent stat.refuel_count 1 as monthly %}
+                                {{ monthly }} руб
                             {% else %}
                                 0.00 руб
                             {% endif %}

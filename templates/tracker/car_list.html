@@ -87,25 +87,13 @@
             </div>
             <div class="col-md-3">
                 <h3 class="text-warning">
-                    {% with total_refuels=cars|length %}
-                        {% if total_refuels > 0 %}
-                            {{ total_spent|default:0|floatformat:0|intcomma|add:"0"|divisibleby:total_refuels }}
-                        {% else %}
-                            0
-                        {% endif %}
-                    {% endwith %}
+                    {{ avg_per_car|floatformat:0|intcomma }}
                 </h3>
                 <p class="text-muted mb-0">Среднее на авто, руб</p>
             </div>
             <div class="col-md-3">
                 <h3 class="text-info">
-                    {% with total=cars|length %}
-                        {% if total > 0 %}
-                            {% widthratio total_refuels|default:0 total 1 %}
-                        {% else %}
-                            0
-                        {% endif %}
-                    {% endwith %}
+                    {{ avg_refuels_per_car|floatformat:1 }}
                 </h3>
                 <p class="text-muted mb-0">Заправок в среднем</p>
             </div>

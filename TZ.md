@@ -56,7 +56,7 @@
 - **Визуализация**: Простые графики и диаграммы для наглядного представления данных
 
 ## 6. Технологический стек
-- **Backend**: Python 3.x, Django 4.x
+- **Backend**: Python 3.10.11, Django 5.2.10
 - **Frontend**: HTML5, CSS3, Bootstrap 5, JavaScript
-- **База данных**: SQLite (разработка)
+- **База данных**: SQLite 
 - **Деплой**: PythonAnywhere

@@ -28,19 +28,11 @@
                     {% endfor %}
                 </select>
             </div>
-            <div class="col-md-4">
-                <label class="form-label">Сортировка:</label>
-                <div class="btn-group" role="group">
-                    <a href="?{% if selected_car %}car={{ selected_car }}&{% endif %}sort=date_desc" 
-                       class="btn btn-outline-secondary {% if not request.GET.sort or request.GET.sort == 'date_desc' %}active{% endif %}">
-                        <i class="fas fa-sort-down"></i> Сначала новые
-                    </a>
-                    <a href="?{% if selected_car %}car={{ selected_car }}&{% endif %}sort=date_asc" 
-                       class="btn btn-outline-secondary {% if request.GET.sort == 'date_asc' %}active{% endif %}">
-                        <i class="fas fa-sort-up"></i> Сначала старые
-                    </a>
-                </div>
-            </div>
+            
+
+
+
+            
             <div class="col-md-4 text-end">
                 <a href="{% url 'refuel-list' %}" class="btn btn-outline-secondary">
                     <i class="fas fa-times"></i> Сбросить фильтры
@@ -144,14 +136,7 @@
                 <p class="mb-0">
                     <strong>Общая стоимость:</strong>
                     <span class="text-danger fw-bold">
-                        {% with total=refuels|length %}
-                            {% if total > 0 %}
-                                {% widthratio refuels.aggregate.total_cost|default:0 1 1 %}
-                            {% else %}
-                                0
-                            {% endif %}
-                        {% endwith %}
-                         руб
+                        {{ total_cost|floatformat:2 }} руб
                     </span>
                 </p>
             </div>
@@ -165,7 +150,7 @@
         <div class="card text-center">
             <div class="card-body">
                 <h3 class="text-primary">
-                    {{ refuels.aggregate.total_volume|default:0|floatformat:1 }}
+                    {{ total_volume|floatformat:1 }}
                 </h3>
                 <p class="text-muted mb-0">Всего литров</p>
             </div>
@@ -175,7 +160,7 @@
         <div class="card text-center">
             <div class="card-body">
                 <h3 class="text-success">
-                    {{ refuels.aggregate.total_cost|default:0|floatformat:0|intcomma }}
+                    {{ total_cost|floatformat:0|intcomma }}
                 </h3>
                 <p class="text-muted mb-0">Всего потрачено</p>
             </div>
@@ -185,7 +170,7 @@
         <div class="card text-center">
             <div class="card-body">
                 <h3 class="text-warning">
-                    {{ refuels.aggregate.avg_price|default:0|floatformat:2 }}
+                    {{ avg_price|floatformat:2 }}
                 </h3>
                 <p class="text-muted mb-0">Средняя цена/л</p>
             </div>
@@ -195,7 +180,7 @@
         <div class="card text-center">
             <div class="card-body">
                 <h3 class="text-info">
-                    {{ refuels.aggregate.avg_volume|default:0|floatformat:1 }}
+                    {{ avg_volume|floatformat:1 }}
                 </h3>
                 <p class="text-muted mb-0">Средний объем</p>
             </div>

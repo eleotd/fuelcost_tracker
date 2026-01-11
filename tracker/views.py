@@ -21,8 +21,7 @@ def dashboard(request):
     """Панель управления"""
     user_cars = Car.objects.filter(user=request.user)
     recent_refuels = Refuel.objects.filter(user=request.user).order_by('-date')[:5]
-    
-    # Статистика
+
     total_spent = Refuel.objects.filter(user=request.user).aggregate(Sum('total_cost'))['total_cost__sum'] or 0
     total_volume = Refuel.objects.filter(user=request.user).aggregate(Sum('volume'))['volume__sum'] or 0
     avg_price = Refuel.objects.filter(user=request.user).aggregate(Avg('price_per_liter'))['price_per_liter__avg'] or 0
@@ -43,9 +42,26 @@ def dashboard(request):
 def car_list(request):
     """Список автомобилей"""
     cars = Car.objects.filter(user=request.user)
+    
+    total_spent = 0
+    total_refuels = 0
+    total_volume = 0
+    
+    for car in cars:
+        total_spent += car.get_total_fuel_cost() or 0
+        total_volume += car.get_total_fuel_volume() or 0
+        total_refuels += car.refuels.count()
+    
+    avg_per_car = total_spent / cars.count() if cars.count() > 0 else 0
+    avg_refuels_per_car = total_refuels / cars.count() if cars.count() > 0 else 0
+    
     context = {
         'title': 'Мои автомобили',
         'cars': cars,
+        'total_spent': total_spent,
+        'total_refuels': total_refuels,
+        'avg_per_car': avg_per_car,
+        'avg_refuels_per_car': avg_refuels_per_car,
     }
     return render(request, 'tracker/car_list.html', context)
 
@@ -73,17 +89,25 @@ def car_add(request):
 def refuel_list(request):
     """Список заправок"""
     refuels = Refuel.objects.filter(user=request.user).select_related('car')
-    
-    # Фильтрация по автомобилю
+
     car_id = request.GET.get('car')
     if car_id:
         refuels = refuels.filter(car_id=car_id)
+
+    total_cost = refuels.aggregate(total=Sum('total_cost'))['total'] or 0
+    total_volume = refuels.aggregate(total=Sum('volume'))['total'] or 0
+    avg_price = refuels.aggregate(avg=Avg('price_per_liter'))['avg'] or 0
+    avg_volume = refuels.aggregate(avg=Avg('volume'))['avg'] or 0
     
     context = {
         'title': 'История заправок',
         'refuels': refuels,
         'cars': Car.objects.filter(user=request.user),
         'selected_car': car_id,
+        'total_cost': total_cost,
+        'total_volume': total_volume,
+        'avg_price': avg_price,
+        'avg_volume': avg_volume,
     }
     return render(request, 'tracker/refuel_list.html', context)
 
@@ -150,7 +174,6 @@ def statistics(request):
     refuels = Refuel.objects.filter(user=request.user).select_related('car')
     cars = Car.objects.filter(user=request.user)
     
-    # Общая статистика
     total_stats = {
         'spent': refuels.aggregate(Sum('total_cost'))['total_cost__sum'] or 0,
         'volume': refuels.aggregate(Sum('volume'))['volume__sum'] or 0,
@@ -158,7 +181,6 @@ def statistics(request):
         'avg_price': refuels.aggregate(Avg('price_per_liter'))['price_per_liter__avg'] or 0,
     }
     
-    # Статистика по месяцам (для графика)
     monthly_data = []
     for i in range(5, -1, -1):
         month_start = datetime.now().replace(day=1) - timedelta(days=30*i)
@@ -184,7 +206,6 @@ def statistics(request):
         
         item['is_complete'] = percent >= 100  
     
-    # Статистика по автомобилям
     car_stats = []
     for car in cars:
         car_refuels = refuels.filter(car=car)
@@ -192,7 +213,6 @@ def statistics(request):
         car_volume = car_refuels.aggregate(Sum('volume'))['volume__sum'] or 0
         
         if car_refuels.count() > 1:
-            # Расчет среднего расхода
             first_refuel = car_refuels.order_by('date').first()
             last_refuel = car_refuels.order_by('date').last()
             

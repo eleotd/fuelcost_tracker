@@ -161,27 +161,16 @@
     {% block extra_js %}{% endblock %}
     
     <script>
-        // Улучшение UX
-        document.addEventListener('DOMContentLoaded', function() {
-            // Автоматическое скрытие сообщений через 5 секунд
-            setTimeout(function() {
-                var alerts = document.querySelectorAll('.alert');
-                alerts.forEach(function(alert) {
-                    var bsAlert = new bootstrap.Alert(alert);
-                    bsAlert.close();
-                });
-            }, 5000);
-            
-            // Подтверждение удаления
-            var deleteButtons = document.querySelectorAll('.btn-delete');
-            deleteButtons.forEach(function(button) {
-                button.addEventListener('click', function(e) {
-                    if (!confirm('Вы уверены, что хотите удалить эту запись?')) {
-                        e.preventDefault();
-                    }
-                });
+    document.addEventListener('DOMContentLoaded', function() {
+        var deleteButtons = document.querySelectorAll('.btn-delete');
+        deleteButtons.forEach(function(button) {
+            button.addEventListener('click', function(e) {
+                if (!confirm('Вы уверены, что хотите удалить эту запись?')) {
+                    e.preventDefault();
+                }
             });
         });
-    </script>
+    });
+</script>
 </body>
 </html>

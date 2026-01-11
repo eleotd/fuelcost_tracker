@@ -12,8 +12,8 @@
 - Адаптивный дизайн для мобильных устройств
 
 ## Технологии
-* **Python 3.10**
-* **Django 4.2**
+* **Python 3.10.11**
+* **Django 5.2.10**
 * **Bootstrap 5** (интерфейс)
 * **SQLite** (база данных)
 * **Requests** (работа с API)
@@ -65,11 +65,15 @@ python manage.py runserver
 ## Структура проекта
 \`\`\`
 fuelcost_tracker/
-├── tracker/          # Основное приложение
-├── users/           # Приложение пользователей
-├── templates/       # HTML шаблоны
-├── manage.py        # Django CLI
-└── requirements.txt # Зависимости
+├── tracker/             # Основное приложение
+├── users/               # Приложение пользователей
+├── templates/           # HTML шаблоны
+├── manage.py            # Django CLI
+├── requirements.txt     # Зависимости
+├── screenshots/         # Скриншоты для документации 
+├── static/              # Глобальные статические файлы 
+├── fuelcost_project/    # Конфигурация проекта (пакет Django)
+└── create_test_data.py  # Тестовые данные
 \`\`\`
 
 ## Скриншоты

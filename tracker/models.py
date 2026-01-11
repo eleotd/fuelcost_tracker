@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator
 from django.utils import timezone
+from decimal import Decimal
 
 class Car(models.Model):
     FUEL_TYPES = [
@@ -45,23 +46,20 @@ class Refuel(models.Model):
     car = models.ForeignKey(Car, on_delete=models.CASCADE, related_name='refuels')
     date = models.DateField(default=timezone.now, verbose_name='Дата заправки')
     odometer = models.IntegerField(verbose_name='Пробег (км)', validators=[MinValueValidator(0)])
-    volume = models.FloatField(verbose_name='Объем (л)', validators=[MinValueValidator(0.1)])
-    price_per_liter = models.DecimalField(
-        max_digits=6,
-        decimal_places=2,
-        verbose_name='Цена за литр (руб)',
-        validators=[MinValueValidator(0)]
-    )
-    total_cost = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        verbose_name='Общая стоимость (руб)',
-        editable=False
-    )
+
+    volume = models.DecimalField(verbose_name='Объем', max_digits=10, decimal_places=2)
+    price_per_liter = models.DecimalField(verbose_name='Цена за литр', max_digits=10, decimal_places=2)
+    total_cost = models.DecimalField(verbose_name='Итоговая стоимость', max_digits=10, decimal_places=2, editable=False)
+
     full_tank = models.BooleanField(default=True, verbose_name='Полный бак')
     station_name = models.CharField(max_length=100, blank=True, verbose_name='Название АЗС')
     notes = models.TextField(blank=True, verbose_name='Примечания')
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        # Теперь оба значения Decimal, можно безопасно умножать
+        self.total_cost = self.volume * self.price_per_liter
+        super().save(*args, **kwargs)
     
     class Meta:
         ordering = ['-date', '-created_at']

@@ -182,31 +182,37 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for stat in car_stats %}
-                        <tr>
-                            <td>{{ stat.car.brand }} {{ stat.car.model }}</td>
-                            <td>
-                                {% with monthly=stat.total_spent|divisibleby:6 %}
-                                    {{ monthly|floatformat:2 }} руб
-                                {% endwith %}
-                            </td>
-                            <td>
-                                {% with cost_per_km=stat.total_spent|divisibleby:stat.refuel_count|default:1 %}
-                                    {{ cost_per_km|floatformat:2 }} руб/км
-                                {% endwith %}
-                            </td>
-                            <td>
-                                {% if stat.avg_consumption < 8 %}
-                                    <span class="badge bg-success">Очень экономичный</span>
-                                {% elif stat.avg_consumption < 12 %}
-                                    <span class="badge bg-warning">Средний расход</span>
-                                {% else %}
-                                    <span class="badge bg-danger">Высокий расход</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
+                    {% for stat in car_stats %}
+                    <tr>
+                        <td>{{ stat.car.brand }} {{ stat.car.model }}</td>
+                        <td>
+                            {% if stat.total_spent %}
+                                {% widthratio stat.total_spent 6 1 as monthly %}
+                                {{ monthly|floatformat:2 }} руб
+                            {% else %}
+                                0.00 руб
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if stat.refuel_count > 0 and stat.total_spent %}
+                                {% widthratio stat.total_spent stat.refuel_count 1 as cost_per_km %}
+                                {{ cost_per_km|floatformat:2 }} руб/км
+                            {% else %}
+                                0.00 руб/км
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if stat.avg_consumption < 8 %}
+                                <span class="badge bg-success">Очень экономичный</span>
+                            {% elif stat.avg_consumption < 12 %}
+                                <span class="badge bg-warning">Средний расход</span>
+                            {% else %}
+                                <span class="badge bg-danger">Высокий расход</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
                 </table>
             </div>
         </div>
@@ -357,19 +363,14 @@
                 bar.style.transition = 'width 1.5s ease-in-out';
             }, 100);
         });
-    });
-</script>
-{% endblock %}
 
-
-{% block extra_js %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Устанавливаем ширину прогресс-баров
-    document.querySelectorAll('.progress-bar[data-percent]').forEach(function(bar) {
-        const percent = bar.getAttribute('data-percent');
-        bar.style.width = percent + '%';
+        document.addEventListener('DOMContentLoaded', function() {
+        // Устанавливаем ширину прогресс-баров
+        document.querySelectorAll('.progress-bar[data-percent]').forEach(function(bar) {
+            const percent = bar.getAttribute('data-percent');
+            bar.style.width = percent + '%';
+            });
+        });
     });
-});
 </script>
 {% endblock %}

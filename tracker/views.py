@@ -174,11 +174,19 @@ def statistics(request):
             'count': month_refuels.count(),
         })
 
-    # Рассчитываем проценты для прогресс-баров
-    if monthly_data:
-        max_spent = max(item['spent'] for item in monthly_data) or 1  # Чтобы избежать деления на 0
-        for item in monthly_data:
-            item['percent'] = int((item['spent'] / max_spent) * 100)    
+    MONTHLY_BUDGET = 5000  # Или брать из настроек пользователя
+    
+    # Рассчитываем проценты для прогресс-баров относительно БЮДЖЕТА
+    for item in monthly_data:
+        if MONTHLY_BUDGET > 0:
+            # Рассчитываем процент от бюджета, но не более 100%
+            percent = min(100, int((item['spent'] / MONTHLY_BUDGET) * 100))
+        else:
+            percent = 0
+        item['percent'] = percent
+        
+        # Добавляем флаг завершения (для отображения ✅)
+        item['is_complete'] = percent >= 100  
     
     # Статистика по автомобилям
     car_stats = []
@@ -228,5 +236,6 @@ def statistics(request):
         'car_stats': car_stats,
         'fuel_prices': fuel_prices,
         'cars': cars,
+        'monthly_budget': MONTHLY_BUDGET,
     }
     return render(request, 'tracker/statistics.html', context)

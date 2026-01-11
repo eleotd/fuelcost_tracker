@@ -83,16 +83,30 @@
                         <td class="fw-bold">{{ month.spent|floatformat:2 }} руб</td>
                         <td>{{ month.count }}</td>
                         <td>
-                            <div class="progress" style="height: 20px;">
-                                <div class="progress-bar bg-success" 
-                                    role="progressbar" 
-                                    data-percent="{{ month.percent|default:0 }}"
-                                    aria-valuenow="{{ month.spent }}" 
-                                    aria-valuemin="0" 
-                                    aria-valuemax="100">
-                                    {{ month.percent|default:0 }}%
+                            {% if month.percent == 100 %}
+                                <div class="progress" style="height: 20px;">
+                                    <div class="progress-bar bg-success" 
+                                        role="progressbar" 
+                                        style="width: 100%"
+                                        aria-valuenow="100" 
+                                        aria-valuemin="0" 
+                                        aria-valuemax="100">
+                                        ✅ 100%
+                                    </div>
                                 </div>
-                            </div>
+                            {% else %}
+                                <div class="progress" style="height: 20px;">
+                                    <div class="progress-bar bg-info" 
+                                        role="progressbar" 
+                                        data-percent="{{ month.percent|default:0 }}"
+                                        style="width: {{ month.percent|default:0 }}%"
+                                        aria-valuenow="{{ month.percent|default:0 }}" 
+                                        aria-valuemin="0" 
+                                        aria-valuemax="100">
+                                        {{ month.percent|default:0 }}%
+                                    </div>
+                                </div>
+                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}
@@ -353,23 +367,10 @@
 {% block extra_js %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Простая анимация прогресс-баров
-        const progressBars = document.querySelectorAll('.progress-bar');
-        progressBars.forEach(bar => {
-            const width = bar.style.width;
-            bar.style.width = '0%';
-            setTimeout(() => {
-                bar.style.width = width;
-                bar.style.transition = 'width 1.5s ease-in-out';
-            }, 100);
-        });
-
-        document.addEventListener('DOMContentLoaded', function() {
         // Устанавливаем ширину прогресс-баров
         document.querySelectorAll('.progress-bar[data-percent]').forEach(function(bar) {
             const percent = bar.getAttribute('data-percent');
             bar.style.width = percent + '%';
-            });
         });
     });
 </script>

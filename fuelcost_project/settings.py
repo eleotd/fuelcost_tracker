@@ -143,6 +143,6 @@ if not DEBUG:
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
     
-    STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-    
     ALLOWED_HOSTS = ['eleotd.pythonanywhere.com', '127.0.0.1']
+
+    STATIC_ROOT = os.path.join(BASE_DIR, 'static')
